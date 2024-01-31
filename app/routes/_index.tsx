@@ -11,8 +11,9 @@ export const meta: MetaFunction = () => {
 export default function Index() {
   const [markdownInput, setMarkdownInput] = useState("");
   const [markdownOutput, setMarkdownOutput] = useState([]);
+  const outputParagraphs = markdownOutput.map((line) => <p>{line}</p>);
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleInputChange(event) {
     setMarkdownInput(event.target.value);
   }
 
@@ -40,7 +41,31 @@ export default function Index() {
     return updatedLines;
   }
 
-  const outputParagraphs = markdownOutput.map((line) => <p>{line}</p>);
+  function resetValues() {
+    setMarkdownInput("");
+    setMarkdownOutput([]);
+  }
+
+  function toggleState(el) {
+    el.querySelector(".before-copied").classList.toggle("hidden");
+    el.querySelector(".after-copied").classList.toggle("hidden");
+  }
+
+  function copyToClipboard(event: Event) {
+    const el = event.currentTarget;
+
+    if ("clipboard" in navigator) {
+      const trimmedText = markdownOutput.join("\n");
+
+      navigator.clipboard.writeText(trimmedText);
+      toggleState(el);
+      setTimeout(() => {
+        toggleState(el);
+      }, 3000);
+    } else {
+      alert("Sorry, your browser does not support clipboard copy.");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -64,10 +89,11 @@ export default function Index() {
                   <div className="mt-2">
                     <textarea
                       id="markdown"
+                      value={markdownInput}
                       onChange={handleInputChange}
                       name="about"
                       rows={3}
-                      className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-sky-500 sm:text-sm sm:leading-6"
+                      className="block w-full rounded-md border-0 bg-white/5 px-3 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-sky-500 sm:text-sm sm:leading-6"
                     ></textarea>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-gray-400">
@@ -86,6 +112,7 @@ export default function Index() {
                     id="reset"
                     type="button"
                     className="flex-shrink-0 w-32 rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                    onClick={resetValues}
                   >
                     Reset
                   </button>
@@ -101,13 +128,14 @@ export default function Index() {
           </h3>
           <div
             id="results"
-            className="mt-2 p-3 block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-sky-500 sm:text-sm sm:leading-6"
+            className="mt-2 px-3 block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-sky-500 sm:text-sm sm:leading-6"
           >
             {outputParagraphs}
           </div>
           <button
             id="copy"
             type="button"
+            onClick={copyToClipboard}
             className="w-32 mt-4 rounded-md bg-sky-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
           >
             <div className="before-copied">Copy</div>
