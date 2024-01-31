@@ -10,20 +10,11 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   const [markdownInput, setMarkdownInput] = useState("");
-  const [markdownOutput, setMarkdownOutput] = useState([]);
+  const [markdownOutput, setMarkdownOutput] = useState<string[]>([]);
   const outputParagraphs = markdownOutput.map((line) => <p>{line}</p>);
 
-  function handleInputChange(event) {
+  function handleInputChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     setMarkdownInput(event.target.value);
-  }
-
-  function handleSubmit(event: Event) {
-    console.log(event);
-    // updateOutput();
-    event.preventDefault();
-    console.log("Input Value:", markdownInput);
-    const updatedLines = processLines(markdownInput);
-    setMarkdownOutput(updatedLines);
   }
 
   function processLines(input: String) {
@@ -41,17 +32,26 @@ export default function Index() {
     return updatedLines;
   }
 
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    console.log(event);
+    // updateOutput();
+    event.preventDefault();
+    console.log("Input Value:", markdownInput);
+    const updatedLines = processLines(markdownInput);
+    setMarkdownOutput(updatedLines);
+  }
+
   function resetValues() {
     setMarkdownInput("");
     setMarkdownOutput([]);
   }
 
-  function toggleState(el) {
-    el.querySelector(".before-copied").classList.toggle("hidden");
-    el.querySelector(".after-copied").classList.toggle("hidden");
+  function toggleState(el: HTMLButtonElement) {
+    el.querySelector(".before-copied")?.classList.toggle("hidden");
+    el.querySelector(".after-copied")?.classList.toggle("hidden");
   }
 
-  function copyToClipboard(event: Event) {
+  function copyToClipboard(event: React.MouseEvent<HTMLButtonElement>) {
     const el = event.currentTarget;
 
     if ("clipboard" in navigator) {
